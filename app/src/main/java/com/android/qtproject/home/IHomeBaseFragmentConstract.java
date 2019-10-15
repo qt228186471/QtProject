@@ -1,7 +1,7 @@
 package com.android.qtproject.home;
 
-import com.android.qtproject.base.IMvpBasePresent;
-import com.android.qtproject.base.IMvpBaseView;
+import com.example.base.IMvpBasePresent;
+import com.example.base.IMvpBaseView;
 
 /**
  * qt

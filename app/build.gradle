@@ -12,9 +12,20 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+
+    signingConfigs{
+        release{
+            storeFile file("qintian.keystore")
+            storePassword "123456"
+            keyAlias "qintian"
+            keyPassword "123456"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -36,6 +47,7 @@ dependencies {
     api project(':userlogin')
     api project(':network')
     api project(':common')
+    api project(':location')
 }
 repositories {
     mavenCentral()

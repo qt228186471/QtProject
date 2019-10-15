@@ -10,6 +10,11 @@ android {
     buildToolsVersion "29.0.2"
 
 
+    sourceSets{
+        main{
+            jniLibs.srcDirs = ['libs']
+        }
+    }
     defaultConfig {
         if(isBuildModule.toBoolean()){
             applicationId 'com.example.location'
@@ -21,6 +26,11 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
+
+        ndk {
+            //设置支持的SO库架构（开发者可以根据需要，选择一个或多个平台的so）
+            abiFilters "armeabi", "armeabi-v7a", "arm64-v8a", "x86","x86_64"
+        }
     }
 
     buildTypes {
@@ -33,11 +43,16 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.core:core-ktx:1.0.2'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation 'com.amap.api:3dmap:6.9.4'
+    implementation 'com.amap.api:location:3.3.0'
+    implementation 'com.amap.api:search:6.9.2'
+
+    api project(':base')
 }
