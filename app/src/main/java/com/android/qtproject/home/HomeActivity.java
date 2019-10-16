@@ -14,9 +14,9 @@ import com.android.qtproject.R;
 import com.android.qtproject.adapter.HomeTitlePagerAdapter;
 import com.android.qtproject.detail.NewPageActivity;
 import com.android.qtproject.model.Title;
-import com.android.qtproject.base.BaseActivity;
-import com.android.qtproject.base.IMvpBasePresent;
-import com.android.qtproject.base.IMvpBaseView;
+import com.example.base.BaseActivity;
+import com.example.base.IMvpBasePresent;
+import com.example.base.IMvpBaseView;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;

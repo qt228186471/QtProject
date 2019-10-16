@@ -2,8 +2,13 @@ package com.android.qtproject.home;
 
 import android.util.Log;
 
+import com.android.network.NetworkManager;
+import com.android.network.ResponseData;
+import com.android.network.ResponseListener;
 import com.android.qtproject.model.Titles;
+import com.android.qtproject.model.Weathers;
 import com.android.qtproject.utils.AssetsUtils;
+import com.google.gson.Gson;
 
 /**
  * qt
@@ -13,13 +18,24 @@ public class HomeFragmentPresent implements IHomeBaseFragmentConstract.IHomeBase
     private static final String TAG = "HomeFragmentPresent";
     private IHomeBaseFragmentConstract.IHomeBaseFragmentView view;
     private static final String FILE_NAME = "titles.json";
+    private static final String URL = "http://api.help.bj.cn/apis/aqi3?id=changchun";
 
     @Override
     public void loadHomeData() {
-        Titles titles = AssetsUtils.getAssets(FILE_NAME, Titles.class);
-        if (titles != null) {
-            Log.d(TAG, titles.getDefaults().toString());
-        }
+        NetworkManager networkManager = new NetworkManager();
+        networkManager.getRequests(URL, new ResponseListener() {
+            @Override
+            public void onSuccess(ResponseData responseData) {
+                Gson gson = new Gson();
+                Weathers weathers = gson.fromJson(responseData.getResult(), Weathers.class);
+                Log.d(TAG, weathers.toString());
+            }
+
+            @Override
+            public void onFailed(int code, String des) {
+                Log.d(TAG, "failed:" + code + "," + des);
+            }
+        });
     }
 
     @Override

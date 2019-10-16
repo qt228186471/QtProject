@@ -1,4 +1,4 @@
-package com.android.qtproject.base;
+package com.example.base;
 
 import android.content.Context;
 

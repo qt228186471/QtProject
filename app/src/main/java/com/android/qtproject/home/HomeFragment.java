@@ -1,12 +1,18 @@
 package com.android.qtproject.home;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.FragmentManager;
+
+import android.view.View;
 import android.widget.TextView;
+
 import com.android.qtproject.R;
-import com.android.qtproject.base.BaseFragment;
+import com.example.base.BaseFragment;
+import com.example.location.LocationActivityDemo;
 
 /**
  * qt
@@ -47,6 +53,14 @@ public class HomeFragment extends BaseFragment<IHomeBaseFragmentConstract.IHomeB
     protected void initView() {
         textView = root.findViewById(R.id.home_tv);
         textView.setText(getArguments().getString(KEY));
+
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), LocationActivityDemo.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override

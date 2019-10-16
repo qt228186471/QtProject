@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.android.qtproject.R;
-import com.android.qtproject.base.BaseActivity;
-import com.android.qtproject.base.IMvpBasePresent;
-import com.android.qtproject.base.IMvpBaseView;
+import com.example.base.BaseActivity;
+import com.example.base.IMvpBasePresent;
+import com.example.base.IMvpBaseView;
 
 /**
  * qt
