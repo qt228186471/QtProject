@@ -1,17 +1,24 @@
 package com.android.qtproject.home;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
+
 import com.android.qtproject.R;
 import com.android.qtproject.adapter.HomeTitlePagerAdapter;
+import com.android.qtproject.detail.NewPageActivity;
 import com.android.qtproject.model.Title;
 import com.android.qtproject.base.BaseActivity;
 import com.android.qtproject.base.IMvpBasePresent;
 import com.android.qtproject.base.IMvpBaseView;
 import com.google.android.material.tabs.TabLayout;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +26,7 @@ public class HomeActivity extends BaseActivity implements IHomeBaseActivityConst
     private IHomeBaseActivityConstract.IHomeBaseActivityPresent iHomeBaseActivityPresent;
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    private Button button;
     private List<Fragment> fragmentList = new ArrayList<>();
     private static final int LIMIT_NUMBER = 2;
 
@@ -41,6 +49,15 @@ public class HomeActivity extends BaseActivity implements IHomeBaseActivityConst
     protected void initView() {
         tabLayout = findViewById(R.id.tl);
         viewPager = findViewById(R.id.vp);
+        button = findViewById(R.id.home_btn);
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, NewPageActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -65,7 +82,7 @@ public class HomeActivity extends BaseActivity implements IHomeBaseActivityConst
             FragmentManager fragmentManager = getSupportFragmentManager();
 
             for (int i = 0; i < titles.size(); i++) {
-                Fragment homeFragment = HomeFragment.newInstance(fragmentManager,getApplicationContext(),titles.get(i).getName());
+                Fragment homeFragment = HomeFragment.newInstance(fragmentManager, getApplicationContext(), titles.get(i).getName());
                 fragmentList.add(homeFragment);
             }
 

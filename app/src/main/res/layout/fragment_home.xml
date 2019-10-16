@@ -6,9 +6,16 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:text="1111"
         android:id="@+id/home_tv"
         android:layout_width="200dip"
         android:layout_height="200dip"
+        android:text="1111"
         android:textColor="@color/color_red" />
+
+    <Button
+        android:id="@+id/home_btn"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/home_tv"
+        android:text="跳转" />
 </RelativeLayout>

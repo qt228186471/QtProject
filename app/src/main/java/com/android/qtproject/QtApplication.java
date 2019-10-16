@@ -1,7 +1,8 @@
 package com.android.qtproject;
 
 import android.app.Application;
-import android.content.Context;
+
+import androidx.multidex.MultiDex;
 
 import com.android.qtproject.utils.AppUtils;
 
@@ -15,5 +16,6 @@ public class QtApplication extends Application {
     public void onCreate() {
         super.onCreate();
         AppUtils.setApplication(this);
+        MultiDex.install(this);
     }
 }
