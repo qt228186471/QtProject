@@ -55,4 +55,5 @@ dependencies {
     implementation 'com.amap.api:search:6.9.2'
 
     api project(':base')
+    api project(':common')
 }

@@ -2,26 +2,24 @@ package com.example.location;
 
 import android.Manifest;
 import android.content.Context;
-import android.graphics.Color;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
-
+import androidx.annotation.Nullable;
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.MapView;
 import com.amap.api.maps.model.MyLocationStyle;
+import com.android.common.CollectionsUtils;
 import com.example.base.BaseActivity;
 import com.example.base.IMvpBasePresent;
 import com.example.base.IMvpBaseView;
-
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-
+import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class LocationActivityDemo extends BaseActivity implements EasyPermissions.PermissionCallbacks, LocationConstract.ILocationView {
@@ -34,6 +32,8 @@ public class LocationActivityDemo extends BaseActivity implements EasyPermission
             Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.ACCESS_COARSE_LOCATION};
     private Bundle bundle;
+    private static final int ALL_PERMISSION = 10000;
+    private static final int REQUEST_SETTING_PERMISSION = 10001;
 
 
     @Override
@@ -57,11 +57,11 @@ public class LocationActivityDemo extends BaseActivity implements EasyPermission
         mapView = findViewById(R.id.map);
 
 
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (EasyPermissions.hasPermissions(this, permissions)) {
                 init();
             } else {
-                EasyPermissions.requestPermissions(this, "请申请必要权限！", 0, permissions);
+                EasyPermissions.requestPermissions(this, "请申请必要权限！", ALL_PERMISSION, permissions);
             }
         } else {
             init();
@@ -126,13 +126,58 @@ public class LocationActivityDemo extends BaseActivity implements EasyPermission
 
     @Override
     public void onPermissionsGranted(int requestCode, List<String> perms) {
-        List<String> list = Arrays.asList(permissions);
-        if (perms.containsAll(list)) {
+        if (requestCode == ALL_PERMISSION && this.permissions.length == perms.size()) {
             init();
-        } else {
-            Toast.makeText(getApplicationContext(), "缺少必要权限!", Toast.LENGTH_SHORT).show();
-            finish();
         }
+    }
+
+    private boolean hasAllPermission(List<String> permission) {
+        if (permission == null || permission.size() == 0) {
+            return false;
+        }
+
+        for (int i = 0; i < permissions.length; i++) {
+            if (!permission.contains(permissions[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 将原权限列表和目标权限列表比较，找出不包含在目标权限列表中的权限
+     *
+     * @param origin
+     * @param target
+     * @return
+     */
+    private String[] getNeedRequest(List<String> origin, List<String> target) {
+        if (CollectionsUtils.isEmpty(target)) {
+            return null;
+        }
+
+        String[] result;
+        if (CollectionsUtils.isEmpty(origin)) {
+            result = new String[target.size()];
+            for (int i = 0; i < origin.size(); i++) {
+                result[i] = origin.get(i);
+            }
+            return result;
+        }
+
+        List<String> needRequest = new ArrayList<>();
+        for (int index = 0; index < target.size(); index++) {
+            if (!origin.contains(target.get(index))) {
+                needRequest.add(target.get(index));
+            }
+        }
+
+        result = new String[needRequest.size()];
+        for (int i = 0; i < needRequest.size(); i++) {
+            result[i] = needRequest.get(i);
+        }
+        return result;
     }
 
     @Override
@@ -143,7 +188,28 @@ public class LocationActivityDemo extends BaseActivity implements EasyPermission
 
     @Override
     public void onPermissionsDenied(int requestCode, List<String> perms) {
-        finish();
+        if (perms.size() == 0) {
+            init();
+        } else {
+            new AppSettingsDialog.Builder(this)
+                    .setTitle("权限已被拒绝")
+                    .setRationale("如果不打开权限则无法使用该功能,点击确定去设置中打开权限")
+                    .setRequestCode(REQUEST_SETTING_PERMISSION)
+                    .build()
+                    .show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_SETTING_PERMISSION:
+                if (EasyPermissions.hasPermissions(this, permissions)) {
+                    init();
+                }
+                break;
+        }
     }
 
     /**

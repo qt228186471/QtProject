@@ -1,6 +1,7 @@
 package com.example.base;
 
 import android.os.Bundle;
+import android.view.Window;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -10,6 +11,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //设置没有titlebar的主题
+        setTheme(R.style.Theme_AppCompat_Light_NoActionBar);
         setContentView(getRes());
         iMvpBasePresent = createPresent();
         iMvpBasePresent.attach(getIBaseView());
