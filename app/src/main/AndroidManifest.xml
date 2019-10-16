@@ -14,12 +14,14 @@
         <activity
             android:name=".detail.NewPageActivity"
             android:label="@string/title_activity_new_page"
-            android:parentActivityName=".home.HomeActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:parentActivityName=".home.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.android.qtproject.home.HomeActivity" />
         </activity>
+        <activity
+            android:name=".ActivityPermissionDemo"
+            android:label="@string/title_activity_new_page"></activity>
         <activity android:name=".home.HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

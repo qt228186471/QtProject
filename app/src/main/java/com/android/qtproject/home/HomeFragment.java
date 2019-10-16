@@ -11,8 +11,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.android.qtproject.ActivityPermissionDemo;
 import com.android.qtproject.R;
-import com.android.qtproject.detail.NewPageActivity;
 import com.example.base.BaseFragment;
 import com.example.location.LocationActivityDemo;
 
@@ -70,7 +70,7 @@ public class HomeFragment extends BaseFragment<IHomeBaseFragmentConstract.IHomeB
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), NewPageActivity.class);
+                Intent intent = new Intent(getActivity(), ActivityPermissionDemo.class);
                 startActivity(intent);
             }
         });
