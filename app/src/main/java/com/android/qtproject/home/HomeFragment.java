@@ -8,9 +8,11 @@ import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.FragmentManager;
 
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.android.qtproject.R;
+import com.android.qtproject.detail.NewPageActivity;
 import com.example.base.BaseFragment;
 import com.example.location.LocationActivityDemo;
 
@@ -22,6 +24,8 @@ public class HomeFragment extends BaseFragment<IHomeBaseFragmentConstract.IHomeB
     public static final String KEY = "key";
     private IHomeBaseFragmentConstract.IHomeBaseFragmentPresent iHomeBaseFragmentPresent;
     private TextView textView;
+    private Button button;
+
 
     public static HomeFragment newInstance(FragmentManager fragmentManager, Context context, String value) {
         FragmentFactory fragmentFactory = fragmentManager.getFragmentFactory();
@@ -53,11 +57,20 @@ public class HomeFragment extends BaseFragment<IHomeBaseFragmentConstract.IHomeB
     protected void initView() {
         textView = root.findViewById(R.id.home_tv);
         textView.setText(getArguments().getString(KEY));
+        button = root.findViewById(R.id.home_btn);
 
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), LocationActivityDemo.class);
+                startActivity(intent);
+            }
+        });
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), NewPageActivity.class);
                 startActivity(intent);
             }
         });

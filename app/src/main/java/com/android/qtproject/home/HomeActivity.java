@@ -1,18 +1,12 @@
 package com.android.qtproject.home;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
-
 import com.android.qtproject.R;
 import com.android.qtproject.adapter.HomeTitlePagerAdapter;
-import com.android.qtproject.detail.NewPageActivity;
 import com.android.qtproject.model.Title;
 import com.example.base.BaseActivity;
 import com.example.base.IMvpBasePresent;
@@ -26,7 +20,6 @@ public class HomeActivity extends BaseActivity implements IHomeBaseActivityConst
     private IHomeBaseActivityConstract.IHomeBaseActivityPresent iHomeBaseActivityPresent;
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private Button button;
     private List<Fragment> fragmentList = new ArrayList<>();
     private static final int LIMIT_NUMBER = 2;
 
@@ -49,15 +42,6 @@ public class HomeActivity extends BaseActivity implements IHomeBaseActivityConst
     protected void initView() {
         tabLayout = findViewById(R.id.tl);
         viewPager = findViewById(R.id.vp);
-        button = findViewById(R.id.home_btn);
-
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(HomeActivity.this, NewPageActivity.class);
-                startActivity(intent);
-            }
-        });
     }
 
     @Override

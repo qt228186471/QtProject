@@ -3,8 +3,10 @@ package com.example.location;
 import android.Manifest;
 import android.content.Context;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,6 +25,7 @@ import java.util.List;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class LocationActivityDemo extends BaseActivity implements EasyPermissions.PermissionCallbacks, LocationConstract.ILocationView {
+    private static final String TAG = "LocationActivityDemo";
     private LocationConstract.ILocationPresent present;
     private MapView mapView;
     private AMap aMap;
@@ -157,6 +160,13 @@ public class LocationActivityDemo extends BaseActivity implements EasyPermission
             aMap.setMyLocationEnabled(true);
             //缩放地图到指定的缩放级别
             aMap.moveCamera(CameraUpdateFactory.zoomTo(13));
+            //定位后经纬度变化信息
+            aMap.setOnMyLocationChangeListener(new AMap.OnMyLocationChangeListener() {
+                @Override
+                public void onMyLocationChange(Location location) {
+                    Log.d(TAG, "经度：" + location.getAltitude() + ",纬度：" + location.getLatitude());
+                }
+            });
         }
     }
 
@@ -171,6 +181,7 @@ public class LocationActivityDemo extends BaseActivity implements EasyPermission
         myLocationStyle.showMyLocation(true);
         return myLocationStyle;
     }
+
 
     @Override
     public void removeMap() {
