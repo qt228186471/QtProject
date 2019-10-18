@@ -9,7 +9,7 @@ public interface LocationConstract {
     }
 
     interface ILocationView extends IMvpBaseView{
-        void locatePosition();
+        void location();
         void removeMap();
     }
 }

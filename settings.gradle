@@ -1,1 +1,1 @@
-include ':app', ':userlogin', ':network', ':common', ':base', ':location'
+include ':app', ':userlogin', ':network', ':common', ':base', ':location', ':features', ':common_ui'

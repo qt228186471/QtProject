@@ -3,12 +3,20 @@ package com.example.location;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.MapView;
@@ -17,8 +25,10 @@ import com.android.common.CollectionsUtils;
 import com.example.base.BaseActivity;
 import com.example.base.IMvpBasePresent;
 import com.example.base.IMvpBaseView;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -27,6 +37,9 @@ public class LocationActivityDemo extends BaseActivity implements EasyPermission
     private LocationConstract.ILocationPresent present;
     private MapView mapView;
     private AMap aMap;
+    private DrawerLayout drawerLayout;
+    private Toolbar toolbar;
+    private boolean isOpen;
     private String[] permissions = {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_PHONE_STATE,
@@ -34,11 +47,15 @@ public class LocationActivityDemo extends BaseActivity implements EasyPermission
     private Bundle bundle;
     private static final int ALL_PERMISSION = 10000;
     private static final int REQUEST_SETTING_PERMISSION = 10001;
+    private TextView textViewMap;
+    private TextView textViewLocation;
+    private TextView textViewSearch;
+    private TextView textViewNavigator;
 
 
     @Override
     protected IMvpBaseView getIBaseView() {
-        return new LocationView();
+        return this;
     }
 
     @Override
@@ -70,11 +87,68 @@ public class LocationActivityDemo extends BaseActivity implements EasyPermission
     }
 
     private void init() {
+        //侧滑菜单
+        toolbar = findViewById(R.id.tb);
+        drawerLayout = findViewById(R.id.dl);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isOpen) {
+                    drawerLayout.openDrawer(Gravity.LEFT);
+                    isOpen = true;
+                } else {
+                    drawerLayout.closeDrawer(Gravity.LEFT);
+                    isOpen = false;
+                }
+            }
+        });
+        drawerLayout.setScrimColor(Color.TRANSPARENT);
+
+        textViewMap = findViewById(R.id.tv_map);
+        textViewLocation = findViewById(R.id.tv_location);
+        textViewSearch = findViewById(R.id.tv_search);
+        textViewNavigator = findViewById(R.id.tv_navigator);
+        textViewMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showMap();
+            }
+        });
+        textViewLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                location();
+            }
+        });
+
+        textViewSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                search();
+            }
+        });
+        textViewNavigator.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigator();
+            }
+        });
+    }
+
+    private void showMap() {
         if (mapView != null) {
             mapView.onCreate(bundle);
             aMap = mapView.getMap();
-            locatePosition();
         }
+    }
+
+    private void navigator() {
+
+    }
+
+    private void search() {
+        Intent intent = new Intent(LocationActivityDemo.this, LocationSearchActivity.class);
+        startActivity(intent);
     }
 
     @Override
@@ -129,20 +203,6 @@ public class LocationActivityDemo extends BaseActivity implements EasyPermission
         if (requestCode == ALL_PERMISSION && this.permissions.length == perms.size()) {
             init();
         }
-    }
-
-    private boolean hasAllPermission(List<String> permission) {
-        if (permission == null || permission.size() == 0) {
-            return false;
-        }
-
-        for (int i = 0; i < permissions.length; i++) {
-            if (!permission.contains(permissions[i])) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -216,7 +276,7 @@ public class LocationActivityDemo extends BaseActivity implements EasyPermission
      * 定位位置
      */
     @Override
-    public void locatePosition() {
+    public void location() {
         if (aMap != null) {
             MyLocationStyle myLocationStyle = getLocateStyle();
             aMap.setMyLocationStyle(myLocationStyle);
