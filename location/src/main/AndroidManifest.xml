@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application>
-        <activity android:name=".LocationSearchActivity"></activity>
+        <activity android:name="com.example.search.LocationSearchActivity"></activity>
 
         <meta-data
             android:name="com.amap.api.v2.apikey"

@@ -60,6 +60,7 @@ dependencies {
     api project(':userlogin')
     api project(':network')
     api project(':common')
+    api project(':common_ui')
     api project(':location')
     api project(':base')
     api project(':features')

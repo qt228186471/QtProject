@@ -5,14 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".LocationSearchActivity">
+    tools:context="com.example.search.LocationSearchActivity">
 
     <androidx.appcompat.widget.SearchView
         android:id="@+id/sv"
+        android:background="@drawable/icon_search"
+        android:layout_marginTop="5dp"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_margin="5dp"
-        android:background="@drawable/icon_search" />
+        android:layout_margin="5dp"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rl"
