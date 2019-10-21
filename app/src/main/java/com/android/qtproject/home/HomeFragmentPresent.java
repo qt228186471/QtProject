@@ -2,12 +2,11 @@ package com.android.qtproject.home;
 
 import android.util.Log;
 
-import com.android.network.NetworkManager;
+import com.android.common.AppUtils;
+import com.android.network.NetworkRequest;
 import com.android.network.ResponseData;
 import com.android.network.ResponseListener;
-import com.android.qtproject.model.Titles;
 import com.android.qtproject.model.Weathers;
-import com.android.qtproject.utils.AssetsUtils;
 import com.google.gson.Gson;
 
 /**
@@ -22,8 +21,8 @@ public class HomeFragmentPresent implements IHomeBaseFragmentConstract.IHomeBase
 
     @Override
     public void loadHomeData() {
-        NetworkManager networkManager = new NetworkManager();
-        networkManager.getRequests(URL, new ResponseListener() {
+        NetworkRequest networkRequest = new NetworkRequest();
+        networkRequest.getRequest(URL, new ResponseListener() {
             @Override
             public void onSuccess(ResponseData responseData) {
                 Gson gson = new Gson();

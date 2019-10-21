@@ -4,7 +4,7 @@ import android.app.Application;
 
 import androidx.multidex.MultiDex;
 
-import com.android.qtproject.utils.AppUtils;
+import com.android.common.AppUtils;
 
 /**
  * qt

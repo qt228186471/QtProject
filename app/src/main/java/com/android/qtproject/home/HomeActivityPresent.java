@@ -1,7 +1,7 @@
 package com.android.qtproject.home;
 
 import com.android.qtproject.model.Titles;
-import com.android.qtproject.utils.AssetsUtils;
+import com.android.common.AssetsUtils;
 
 /**
  * qt

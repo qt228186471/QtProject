@@ -1,4 +1,4 @@
-package com.android.qtproject.utils;
+package com.android.common;
 
 import android.app.Application;
 
