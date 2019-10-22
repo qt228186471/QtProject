@@ -5,6 +5,7 @@ import android.app.Application;
 import androidx.multidex.MultiDex;
 
 import com.android.common.AppUtils;
+import com.android.network.config.AppConfig;
 
 /**
  * qt
@@ -17,5 +18,9 @@ public class QtApplication extends Application {
         super.onCreate();
         AppUtils.setApplication(this);
         MultiDex.install(this);
+
+        AppConfig.init(AppConfig.Builder.newInstance()
+                .setOpenLog(BuildConfig.DEBUG)
+                .build(this));
     }
 }

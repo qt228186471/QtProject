@@ -1,33 +1,26 @@
 package com.android.network;
 
-import android.content.Context;
 import android.text.TextUtils;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import com.android.common.AppUtils;
 import com.android.common.LogUtils;
 import com.android.common.NetworkUtils;
 import com.android.network.encrypt.EncryptUtils;
-
 import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketTimeoutException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
-
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Headers;
@@ -41,18 +34,16 @@ import okhttp3.ResponseBody;
 import okhttp3.internal.http.RealResponseBody;
 import okio.BufferedSink;
 
-public class NetworkRequest {
+public class NetworkRequest implements INetworkRequest{
     public static final int RESPONSE_SERVER_ERROR = 0;
     public static final int RESPONSE_EMPTY = -1;
-    public static final int RESPONSE_DATA_EXCEPTION = -2;
-    public static final int RESPONSE_NATIVE_HANDLE_ERROR = -3;
-    public static final int RESPONSE_NO_NET = -4;
-    public static final int RESPONSE_REQUEST_DATA_ERROR = -5;
-    public static final int RESPONSE_REQUEST_TIMEOUT = -6;
-    public static final int RESPONSE_REQUEST_NETWORK_ERROR = -7;
-    public static final int RESPONSE_REQUEST_FAILED = -8;
+    public static final int RESPONSE_NATIVE_HANDLE_ERROR = -2;
+    public static final int RESPONSE_NO_NET = -3;
+    public static final int RESPONSE_REQUEST_DATA_ERROR = -4;
+    public static final int RESPONSE_REQUEST_TIMEOUT = -5;
+    public static final int RESPONSE_REQUEST_NETWORK_ERROR = -6;
+    public static final int RESPONSE_REQUEST_FAILED = -7;
     public static final String RESPONSE_EMPTY_DES = "返回数据为空";
-    public static final String RESPONSE_DATA_EXCEPTION_DES = "返回数据异常";
     public static final String RESPONSE_NATIVE_HANDLE_DES = "本地处理错误";
     public static final String RESPONSE_NO_NET_DES = "没有网络";
     public static final String RESPONSE_REQUEST_DATA_ERROR_DES = "请求格式错误";
@@ -62,7 +53,7 @@ public class NetworkRequest {
 
 
     private static final String MEDIA_TYPE_STREAM = "application/octet-stream; charset=utf-8";
-    private static final String MEDIA_TYPE_JSON = "application/json";
+    private static final String MEDIA_TYPE_JSON = "application/json; charset=utf-8";
 
     private final long mDefaultOutTime = 10000;//默认的超时时间
 
@@ -102,7 +93,7 @@ public class NetworkRequest {
      * 通过前两步中的对象构建Call对象；
      * 在子线程中通过Call#execute()方法来提交同步请求；
      */
-    public void getRequest(String url, final ResponseListener responseListener) {
+    public void getRequest(String url, final Map<String,String> headers, final ResponseListener responseListener) {
         if (TextUtils.isEmpty(url) || responseListener == null) {
             responseListener.onFailed(RESPONSE_REQUEST_DATA_ERROR, RESPONSE_REQUEST_DATA_ERROR_DES);
             return;
@@ -119,6 +110,7 @@ public class NetworkRequest {
             final Request request = new Request.Builder()
                     .url(url)
                     .get()//默认就是GET请求
+                    .headers(Headers.of(headers))
                     .build();
             final Call call = okHttpClient.newCall(request);
             final ResponseData responseData = new ResponseData();
@@ -126,7 +118,11 @@ public class NetworkRequest {
             call.enqueue(new Callback() {
                 @Override
                 public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                    responseListener.onFailed(RESPONSE_SERVER_ERROR, RESPONSE_DATA_EXCEPTION_DES);
+                    if(e instanceof SocketTimeoutException){
+                        responseListener.onFailed(RESPONSE_REQUEST_TIMEOUT, RESPONSE_REQUEST_TIMEOUT_DES);
+                    }else{
+                        responseListener.onFailed(RESPONSE_SERVER_ERROR, e.getMessage());
+                    }
                 }
 
                 @Override
@@ -154,7 +150,7 @@ public class NetworkRequest {
      * 在构造 Request对象时，需要多构造一个RequestBody对象，携带要提交的数据。
      * 在构造 RequestBody 需要指定MediaType，用于描述请求/响应 body 的内容类型
      */
-    private void post(String url, RequestBody requestBody, final ResponseListener responseListener) {
+    private void post(String url, final Map<String,String> headers, RequestBody requestBody, final ResponseListener responseListener) {
         if (TextUtils.isEmpty(url) || responseListener == null) {
             responseListener.onFailed(RESPONSE_REQUEST_DATA_ERROR, RESPONSE_REQUEST_DATA_ERROR_DES);
             return;
@@ -170,13 +166,18 @@ public class NetworkRequest {
             Request request = new Request.Builder()
                     .url(url)
                     .post(requestBody)
+                    .headers(Headers.of(headers))
                     .build();
             OkHttpClient okHttpClient = getInstance(mDefaultOutTime);
             final ResponseData responseData = new ResponseData();
             okHttpClient.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    responseListener.onFailed(RESPONSE_DATA_EXCEPTION, RESPONSE_DATA_EXCEPTION_DES + ":" + e.getMessage());
+                    if(e instanceof SocketTimeoutException){
+                        responseListener.onFailed(RESPONSE_REQUEST_TIMEOUT, RESPONSE_REQUEST_TIMEOUT_DES);
+                    }else{
+                        responseListener.onFailed(RESPONSE_SERVER_ERROR, e.getMessage());
+                    }
                 }
 
                 @Override
@@ -203,7 +204,7 @@ public class NetworkRequest {
     /**
      * POST方式提交流
      */
-    public void postStreamRequest(String url, final String content, ResponseListener responseListener) {
+    public void postStream(String url, final Map<String,String> headers, final String content, ResponseListener responseListener) {
         if (TextUtils.isEmpty(content) || TextUtils.isEmpty(content) || responseListener == null) {
             responseListener.onFailed(RESPONSE_REQUEST_DATA_ERROR, RESPONSE_REQUEST_DATA_ERROR_DES);
             return;
@@ -220,7 +221,7 @@ public class NetworkRequest {
                 sink.writeUtf8(content);
             }
         };
-        post(url, requestBody, responseListener);
+        post(url, headers, requestBody, responseListener);
     }
 
 
@@ -231,7 +232,7 @@ public class NetworkRequest {
      * @param json
      * @param responseListener
      */
-    public void postJsonRequest(String url, String json, ResponseListener responseListener) {
+    public void postJson(String url, final Map<String,String> headers, String json, ResponseListener responseListener) {
         if (TextUtils.isEmpty(url) || TextUtils.isEmpty(json) || responseListener == null) {
             responseListener.onFailed(RESPONSE_REQUEST_DATA_ERROR, RESPONSE_REQUEST_DATA_ERROR_DES);
             return;
@@ -239,7 +240,7 @@ public class NetworkRequest {
 
         MediaType mediaType = MediaType.parse(MEDIA_TYPE_JSON);
         RequestBody requestBody = RequestBody.create(json, mediaType);
-        post(url, requestBody, responseListener);
+        post(url, headers, requestBody, responseListener);
     }
 
 
@@ -251,12 +252,13 @@ public class NetworkRequest {
      * @param handleStream，true 直接对返回的流进行操作，false 将数据保存到saveDir文件
      * @param listener          回调监听
      */
-    public void download(final String url, final String saveDir, final String fileName,final boolean handleStream, @NonNull final INetworkRequest.DownloadListener listener) {
-        download(url,null,saveDir,fileName,handleStream,listener);
+    public void download(final String url, final String saveDir, final String fileName, final boolean handleStream, @NonNull final INetworkRequest.DownloadListener listener) {
+        download(url, null, saveDir, fileName, handleStream, listener);
     }
 
     /**
      * 下载文件
+     *
      * @param url          下载路径
      * @param headers
      * @param saveDir      保存文件路径
@@ -266,7 +268,7 @@ public class NetworkRequest {
      */
     public void download(final String url, HashMap<String, String> headers, final String saveDir, final String fileName, final boolean handleStream, @NonNull final INetworkRequest.DownloadListener listener) {
         Request.Builder builder = new Request.Builder();
-        if(headers!=null){
+        if (headers != null) {
             builder.headers(Headers.of(headers));
         }
         Request request = builder.url(url).build();
@@ -285,8 +287,8 @@ public class NetworkRequest {
                 try {
                     if (response.code() == 200) {
                         ResponseBody responseBody = response.body();
-                        if(responseBody==null || !(responseBody instanceof RealResponseBody)){
-                            listener.onDownloadFailed(null,null,"Response not RealResponseBody");
+                        if (responseBody == null || !(responseBody instanceof RealResponseBody)) {
+                            listener.onDownloadFailed(null, null, "Response not RealResponseBody");
                             return;
                         }
                         is = responseBody.byteStream();
@@ -294,26 +296,26 @@ public class NetworkRequest {
                             listener.onHandleStream(is);
                             return;
                         }
-                        if(TextUtils.isEmpty(serverFileName)){
+                        if (TextUtils.isEmpty(serverFileName)) {
                             //文件名为空，使用网络名称
                             String disposition = response.header("Content-Disposition");
-                            if(!TextUtils.isEmpty(disposition)){
+                            if (!TextUtils.isEmpty(disposition)) {
                                 String[] str = disposition.split(";");
-                                if(str.length>1){
+                                if (str.length > 1) {
                                     //这里为了处理一些带空格的情况
-                                    serverFileName = URLDecoder.decode(str[1].trim().replaceFirst("filename=","").replace("\"","").trim(),"utf-8");
+                                    serverFileName = URLDecoder.decode(str[1].trim().replaceFirst("filename=", "").replace("\"", "").trim(), "utf-8");
                                 }
                             }
-                            if(TextUtils.isEmpty(serverFileName)){
+                            if (TextUtils.isEmpty(serverFileName)) {
                                 //网络名称获取失败，使用url的md5
                                 serverFileName = EncryptUtils.md5(url);
                             }
                         }
 
-                        if(!listener.onLocalFileCheck(serverFileName)){
+                        if (!listener.onLocalFileCheck(serverFileName)) {
                             //本地没有该文件，则继续下载
-                            download(is,saveDir,serverFileName,response, listener);
-                        }else {
+                            download(is, saveDir, serverFileName, response, listener);
+                        } else {
                             //本地已经存在该文件
                             listener.onDownloadSuccess(serverFileName);
                         }
@@ -324,9 +326,9 @@ public class NetworkRequest {
                     listener.onDownloadFailed(call, e, "File Not Found");
                 } catch (IOException e) {
                     listener.onDownloadFailed(call, e, "IOException");
-                } catch (NullPointerException e){
+                } catch (NullPointerException e) {
                     listener.onDownloadFailed(call, e, "IOException");
-                }finally {
+                } finally {
                     try {
                         //handleStream为true情况下需要自行关闭流！！
                         if (!handleStream && is != null) {
@@ -341,30 +343,30 @@ public class NetworkRequest {
     }
 
     public void upload(String url, HashMap<String, String> header, HashMap<String, String> params, HashMap<String, String> files, ResponseListener listener) {
-        upload(url,header,params,files,"*/*",listener);
+        upload(url, header, params, files, "*/*", listener);
     }
 
     public void upload(String url, HashMap<String, String> header, HashMap<String, String> params, HashMap<String, String> files, String mediaType, ResponseListener callback) {
         MultipartBody.Builder builder = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM);
 
-        if(params!=null){
-            for(Map.Entry<String, String> entry: params.entrySet()) {
-                builder.addFormDataPart(entry.getKey(),entry.getValue());
+        if (params != null) {
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                builder.addFormDataPart(entry.getKey(), entry.getValue());
             }
         }
-        if(files!=null){
-            for(Map.Entry<String, String> entry: files.entrySet()) {
+        if (files != null) {
+            for (Map.Entry<String, String> entry : files.entrySet()) {
                 File file = new File(entry.getValue());
                 builder.addFormDataPart("file", URLEncoder.encode(file.getName())
-                        ,RequestBody.create(MediaType.parse(mediaType), file));
+                        , RequestBody.create(MediaType.parse(mediaType), file));
             }
         }
 
         RequestBody requestBody = builder.build();
         Request.Builder requestBuilder = new Request.Builder()
                 .url(url);
-        if(header!=null){
+        if (header != null) {
             requestBuilder.headers(Headers.of(header));
         }
         Request request = requestBuilder.post(requestBody)
@@ -375,18 +377,18 @@ public class NetworkRequest {
     /**
      * 提供给public的download使用
      */
-    private void download(InputStream is,String saveDir,String fileName, Response response, INetworkRequest.DownloadListener listener) throws IOException {
+    private void download(InputStream is, String saveDir, String fileName, Response response, INetworkRequest.DownloadListener listener) throws IOException {
         LogUtils.e("从网上下载数据！！");
         File dir = new File(saveDir);
-        if(!dir.exists()){
+        if (!dir.exists()) {
             dir.mkdirs();
         }
-        File file = new File(saveDir+File.separator+fileName);
+        File file = new File(saveDir + File.separator + fileName);
 
         FileOutputStream fos = new FileOutputStream(file);
 
         byte[] buf = new byte[2048];
-        long total = response.body()==null ? 0 : response.body().contentLength();
+        long total = response.body() == null ? 0 : response.body().contentLength();
         long sum = 0;
         int len;
         while ((len = is.read(buf)) != -1) {

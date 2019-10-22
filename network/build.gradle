@@ -17,6 +17,9 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
+
+        buildConfigField 'Boolean', 'IN_JENKINS', IN_JENKINS
+
     }
 
     buildTypes {

@@ -22,7 +22,7 @@ public class HomeFragmentPresent implements IHomeBaseFragmentConstract.IHomeBase
     @Override
     public void loadHomeData() {
         NetworkRequest networkRequest = new NetworkRequest();
-        networkRequest.getRequest(URL, new ResponseListener() {
+        networkRequest.getRequest(URL, null, new ResponseListener() {
             @Override
             public void onSuccess(ResponseData responseData) {
                 Gson gson = new Gson();

@@ -1,17 +1,13 @@
 package com.android.network;
 
-import android.webkit.DownloadListener;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.RequestBody;
-import okhttp3.Response;
 
 /**
  * qt
@@ -25,20 +21,13 @@ public interface INetworkRequest {
      * 通过前两步中的对象构建Call对象；
      * 在子线程中通过Call#execute()方法来提交同步请求；
      */
-    void getRequest(String url, final ResponseListener responseListener);
-
-    /**
-     * POST方式提交String
-     * 在构造 Request对象时，需要多构造一个RequestBody对象，携带要提交的数据。
-     * 在构造 RequestBody 需要指定MediaType，用于描述请求/响应 body 的内容类型
-     */
-    void post(String url, RequestBody requestBody, final ResponseListener responseListener);
+    void getRequest(String url, final Map<String,String> headers, final ResponseListener responseListener);
 
 
     /**
      * POST方式提交流
      */
-    void postStreamRequest(String url, final String content, ResponseListener responseListener);
+    void postStream(String url, final Map<String,String> headers, final String content, ResponseListener responseListener);
 
     /**
      * json提交
@@ -47,7 +36,7 @@ public interface INetworkRequest {
      * @param json
      * @param responseListener
      */
-    void postJsonRequest(String url, String json, ResponseListener responseListener);
+    void postJson(String url, final Map<String,String> headers, String json, ResponseListener responseListener);
 
     /**
      * 下载文件，图片的方法
